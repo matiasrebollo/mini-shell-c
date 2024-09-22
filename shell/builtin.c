@@ -7,9 +7,10 @@
 int
 exit_shell(char *cmd)
 {
-	// Your code here
-
-	return 0;
+	if(strcmp(cmd, "exit") == 0){
+		return true;
+	}
+	return false;
 }
 
 // returns true if "chdir" was performed
@@ -27,9 +28,38 @@ exit_shell(char *cmd)
 int
 cd(char *cmd)
 {
-	// Your code here
+	if(!strstr(cmd, "cd")){
+		return false;
+	}
 
-	return 0;
+	if(strcmp(cmd,"cd") == 0){
+		char *home = getenv("HOME");
+		if(chdir(home) < 0){
+			printf_debug("Error cambiando a home");
+			return true;
+		}
+		snprintf(prompt, sizeof prompt, "(%s)", home);
+		return true;
+	}
+
+	if(strncmp(cmd, "cd ", 3) != 0){
+		return false;
+	}
+
+	strtok(cmd, " ");
+	char *directorio = strtok(NULL, " ");
+
+	if(directorio != NULL){
+		if(chdir(directorio) < 0){
+			printf_debug("Error cambiando el directorio");
+			return true;
+		}
+		char *buffer = getcwd(NULL, 0);
+		snprintf(prompt, sizeof prompt, "(%s)", buffer);
+		free(buffer);
+	}
+
+	return true;
 }
 
 // returns true if 'pwd' was invoked
@@ -40,9 +70,20 @@ cd(char *cmd)
 int
 pwd(char *cmd)
 {
-	// Your code here
+	if(strcmp("pwd", cmd) != 0){
+		return false;
+	}
 
-	return 0;
+	char *buffer = getcwd(NULL,0);
+	if(buffer == NULL){
+		printf_debug("Error encontrando cwd\n", 0);
+		return true;
+	}
+
+	printf_debug("%s\n", buffer);
+	free(buffer);
+
+	return true;
 }
 
 // returns true if `history` was invoked
