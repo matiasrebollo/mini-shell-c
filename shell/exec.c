@@ -101,7 +101,7 @@ exec_cmd(struct cmd *cmd)
 		}
 
 		if(execvp(e->argv[0],e->argv) < 0){
-			printf_debug("Error ejecutando execvp \n");
+			perror("Error ejecutando execvp \n");
 			exit(-1);
 		}
 		
@@ -126,20 +126,13 @@ exec_cmd(struct cmd *cmd)
 		//
 		// Your code here
 		r = (struct execcmd *)cmd;
-		if (strlen(r->err_file)>0){
-			int fd_err = open_redir_fd(r->err_file, O_CREAT|O_WRONLY|O_CLOEXEC|O_TRUNC);
-			int res = dup2(fd_err, 2);
-			if (res<0){
-				perror("Error redirecting stderr flow");
-				exit(-1);
-			}	
-		}
 		if(strlen(r->in_file)>0){
-			int fd_in = open_redir_fd(r->in_file, O_RDONLY|O_CREAT|O_CLOEXEC|O_TRUNC);
+			int fd_in = open_redir_fd(r->in_file, O_RDONLY|O_CLOEXEC);
 			int res = dup2(fd_in, 0);
 			if (res<0){
 				perror("Error redirecting stdin flow");
 				exit(-1);
+				break;
 			}
 			
 		}
@@ -149,8 +142,23 @@ exec_cmd(struct cmd *cmd)
 			if (res<0){
 				perror("Error redirecting stdout flow");
 				exit(-1);
+				break;
 			}
 			
+		}
+		if (strlen(r->err_file)>0){
+			int fd_err = 0;
+			if (strcmp(r->err_file, "&1\0") == 0){
+				fd_err = 1;
+			}else{
+				fd_err = open_redir_fd(r->err_file, O_CREAT|O_WRONLY|O_CLOEXEC|O_TRUNC);
+			}
+			int res = dup2(fd_err, 2);
+			if (res<0){
+				perror("Error redirecting stderr flow");
+				exit(-1);
+				break;
+			}	
 		}
 		execvp(r->argv[0], r->argv);
 		

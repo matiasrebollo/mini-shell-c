@@ -35,7 +35,7 @@ cd(char *cmd)
 	if(strcmp(cmd,"cd") == 0){
 		char *home = getenv("HOME");
 		if(chdir(home) < 0){
-			printf_debug("Error cambiando a home");
+			perror("Error changing to home");
 			return true;
 		}
 		snprintf(prompt, sizeof prompt, "(%s)", home);
@@ -51,7 +51,7 @@ cd(char *cmd)
 
 	if(directorio != NULL){
 		if(chdir(directorio) < 0){
-			printf_debug("Error cambiando el directorio");
+			perror("Error changing directory");
 			return true;
 		}
 		char *buffer = getcwd(NULL, 0);
@@ -76,11 +76,11 @@ pwd(char *cmd)
 
 	char *buffer = getcwd(NULL,0);
 	if(buffer == NULL){
-		printf_debug("Error encontrando cwd\n", 0);
+		perror("Error finding cwd\n");
 		return true;
 	}
 
-	printf_debug("%s\n", buffer);
+	printf("%s\n", buffer);
 	free(buffer);
 
 	return true;
