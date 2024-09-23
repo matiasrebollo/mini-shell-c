@@ -7,7 +7,7 @@
 int
 exit_shell(char *cmd)
 {
-	if(strcmp(cmd, "exit") == 0){
+	if (strcmp(cmd, "exit") == 0) {
 		return true;
 	}
 	return false;
@@ -28,13 +28,13 @@ exit_shell(char *cmd)
 int
 cd(char *cmd)
 {
-	if(!strstr(cmd, "cd")){
+	if (!strstr(cmd, "cd")) {
 		return false;
 	}
 
-	if(strcmp(cmd,"cd") == 0){
+	if (strcmp(cmd, "cd") == 0) {
 		char *home = getenv("HOME");
-		if(chdir(home) < 0){
+		if (chdir(home) < 0) {
 			perror("Error changing to home");
 			return true;
 		}
@@ -42,15 +42,15 @@ cd(char *cmd)
 		return true;
 	}
 
-	if(strncmp(cmd, "cd ", 3) != 0){
+	if (strncmp(cmd, "cd ", 3) != 0) {
 		return false;
 	}
 
 	strtok(cmd, " ");
 	char *directorio = strtok(NULL, " ");
 
-	if(directorio != NULL){
-		if(chdir(directorio) < 0){
+	if (directorio != NULL) {
+		if (chdir(directorio) < 0) {
 			perror("Error changing directory");
 			return true;
 		}
@@ -70,12 +70,12 @@ cd(char *cmd)
 int
 pwd(char *cmd)
 {
-	if(strcmp("pwd", cmd) != 0){
+	if (strcmp("pwd", cmd) != 0) {
 		return false;
 	}
 
-	char *buffer = getcwd(NULL,0);
-	if(buffer == NULL){
+	char *buffer = getcwd(NULL, 0);
+	if (buffer == NULL) {
 		perror("Error finding cwd\n");
 		return true;
 	}
