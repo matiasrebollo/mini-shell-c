@@ -103,7 +103,7 @@ int
 history(char *cmd)
 {
 	// Your code here
-	//status = EXIT_FAILURE;
-	//status = EXIT_SUCCESS;
+	// status = EXIT_FAILURE;
+	// status = EXIT_SUCCESS;
 	return 0;
 }

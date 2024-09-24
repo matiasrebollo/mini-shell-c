@@ -108,7 +108,7 @@ expand_environ_var(char *arg)
 	}
 
 	int status = 0;
-	if (strcmp(arg, "$?") == 0){
+	if (strcmp(arg, "$?") == 0) {
 		char *status_str = malloc(12);
 		sprintf(status_str, "%d", status);
 		return status_str;
@@ -120,7 +120,7 @@ expand_environ_var(char *arg)
 		env_var = "";
 	}
 
-	//free(arg);
+	// free(arg);
 
 	return strdup(env_var);
 }

@@ -50,13 +50,12 @@ get_environ_value(char *arg, char *value, int idx)
 static void
 set_environ_vars(char **eargv, int eargc)
 {
-	for (int i = 0; i < eargc; i++)
-	{
+	for (int i = 0; i < eargc; i++) {
 		int idx = block_contains(eargv[i], '=');
 		if (idx > 0) {
 			char key[BUFLEN];
 			char value[BUFLEN];
-			
+
 			get_environ_key(eargv[i], key);
 			get_environ_value(eargv[i], value, idx);
 
@@ -65,9 +64,7 @@ set_environ_vars(char **eargv, int eargc)
 				exit(-1);
 			}
 		}
-		
 	}
-	
 }
 
 // opens the file in which the stdin/stdout/stderr
@@ -123,16 +120,20 @@ exec_cmd(struct cmd *cmd)
 			perror("Error ejecutando execvp \n");
 			status = EXIT_FAILURE;
 			exit(-1);
-		} 
+		}
 
 		break;
 
 	case BACK: {
 		// runs a command in background
-		//
-		// Your code here
-		printf("Background process are not yet implemented\n");
-		_exit(-1);
+		b = (struct backcmd *) cmd;
+
+		if (b->c == NULL) {
+			return;
+		}
+
+		exec_cmd(b->c);
+
 		break;
 	}
 
