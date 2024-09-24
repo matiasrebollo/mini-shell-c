@@ -1,5 +1,7 @@
 #include "parsing.h"
 
+extern int status;
+
 // parses an argument of the command stream input
 static char *
 get_token(char *buf, int idx)
@@ -101,9 +103,26 @@ parse_environ_var(struct execcmd *c, char *arg)
 static char *
 expand_environ_var(char *arg)
 {
-	// Your code here
+	if (arg[0] != '$') {
+		return arg;
+	}
 
-	return arg;
+	int status = 0;
+	if (strcmp(arg, "$?") == 0){
+		char *status_str = malloc(12);
+		sprintf(status_str, "%d", status);
+		return status_str;
+	}
+
+	char *var_name = arg + 1;
+	char *env_var = getenv(var_name);
+	if (env_var == NULL) {
+		env_var = "";
+	}
+
+	//free(arg);
+
+	return strdup(env_var);
 }
 
 // parses one single command having into account:

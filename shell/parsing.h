@@ -5,6 +5,8 @@
 #include "types.h"
 #include "createcmd.h"
 #include "utils.h"
+#include "runcmd.h"
+
 
 struct cmd *parse_line(char *b);
 
