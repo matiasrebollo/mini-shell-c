@@ -54,8 +54,8 @@ set_environ_vars(char **eargv, int eargc)
 	{
 		int idx = block_contains(eargv[i], '=');
 		if (idx > 0) {
-			char key[BUFSIZ];
-			char value[BUFSIZ];
+			char key[BUFLEN];
+			char value[BUFLEN];
 			
 			get_environ_key(eargv[i], key);
 			get_environ_value(eargv[i], value, idx);
@@ -116,6 +116,8 @@ exec_cmd(struct cmd *cmd)
 		if (e->argv[0] == NULL) {
 			return;
 		}
+
+		set_environ_vars(e->argv, e->argc);
 
 		if (execvp(e->argv[0], e->argv) < 0) {
 			perror("Error ejecutando execvp \n");
