@@ -1,5 +1,7 @@
 #include "builtin.h"
 
+extern int status;
+
 // returns true if the 'exit' call
 // should be performed
 //
@@ -36,9 +38,11 @@ cd(char *cmd)
 		char *home = getenv("HOME");
 		if (chdir(home) < 0) {
 			perror("Error changing to home");
+			status = EXIT_FAILURE;
 			return true;
 		}
 		snprintf(prompt, sizeof prompt, "(%s)", home);
+		status = EXIT_SUCCESS;
 		return true;
 	}
 
@@ -52,11 +56,13 @@ cd(char *cmd)
 	if (directorio != NULL) {
 		if (chdir(directorio) < 0) {
 			perror("Error changing directory");
+			status = EXIT_FAILURE;
 			return true;
 		}
 		char *buffer = getcwd(NULL, 0);
 		snprintf(prompt, sizeof prompt, "(%s)", buffer);
 		free(buffer);
+		status = EXIT_SUCCESS;
 	}
 
 	return true;
@@ -77,11 +83,13 @@ pwd(char *cmd)
 	char *buffer = getcwd(NULL, 0);
 	if (buffer == NULL) {
 		perror("Error finding cwd\n");
+		status = EXIT_FAILURE;
 		return true;
 	}
 
 	printf("%s\n", buffer);
 	free(buffer);
+	status = EXIT_SUCCESS;
 
 	return true;
 }
@@ -95,6 +103,7 @@ int
 history(char *cmd)
 {
 	// Your code here
-
+	// status = EXIT_FAILURE;
+	// status = EXIT_SUCCESS;
 	return 0;
 }

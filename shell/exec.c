@@ -1,5 +1,7 @@
 #include "exec.h"
 
+extern int status;
+
 // sets "key" with the key part of "arg"
 // and null-terminates it
 //
@@ -48,7 +50,21 @@ get_environ_value(char *arg, char *value, int idx)
 static void
 set_environ_vars(char **eargv, int eargc)
 {
-	// Your code here
+	for (int i = 0; i < eargc; i++) {
+		int idx = block_contains(eargv[i], '=');
+		if (idx > 0) {
+			char key[BUFLEN];
+			char value[BUFLEN];
+
+			get_environ_key(eargv[i], key);
+			get_environ_value(eargv[i], value, idx);
+
+			if (setenv(key, value, 1) < 0) {
+				perror("Error setting environment variable");
+				exit(-1);
+			}
+		}
+	}
 }
 
 // opens the file in which the stdin/stdout/stderr
@@ -98,8 +114,11 @@ exec_cmd(struct cmd *cmd)
 			return;
 		}
 
+		set_environ_vars(e->argv, e->argc);
+
 		if (execvp(e->argv[0], e->argv) < 0) {
 			perror("Error ejecutando execvp \n");
+			status = EXIT_FAILURE;
 			exit(-1);
 		}
 
@@ -107,10 +126,14 @@ exec_cmd(struct cmd *cmd)
 
 	case BACK: {
 		// runs a command in background
-		//
-		// Your code here
-		printf("Background process are not yet implemented\n");
-		_exit(-1);
+		b = (struct backcmd *) cmd;
+
+		if (b->c == NULL) {
+			return;
+		}
+
+		exec_cmd(b->c);
+
 		break;
 	}
 
