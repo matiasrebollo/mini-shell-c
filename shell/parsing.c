@@ -107,22 +107,24 @@ expand_environ_var(char *arg)
 		return arg;
 	}
 
-	int status = 0;
 	if (strcmp(arg, "$?") == 0) {
-		char *status_str = malloc(12);
-		sprintf(status_str, "%d", status);
-		return status_str;
+		sprintf(arg, "%d", status);
+		return arg;
 	}
 
 	char *var_name = arg + 1;
 	char *env_var = getenv(var_name);
-	if (env_var == NULL) {
-		env_var = "";
+
+	if (!env_var || strlen(env_var) == 0) {
+		strcpy(arg, "");
+	} else {
+		if (strlen(env_var) > ARGSIZE) {
+			arg = realloc(arg, strlen(env_var));
+		}
+		strcpy(arg, env_var);
 	}
 
-	// free(arg);
-
-	return strdup(env_var);
+	return arg;
 }
 
 // parses one single command having into account:
@@ -153,7 +155,9 @@ parse_exec(char *buf_cmd)
 
 		tok = expand_environ_var(tok);
 
-		c->argv[argc++] = tok;
+		if (strlen(tok) > 0) {
+			c->argv[argc++] = tok;
+		}
 	}
 
 	c->argv[argc] = (char *) NULL;
