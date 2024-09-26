@@ -190,14 +190,51 @@ exec_cmd(struct cmd *cmd)
 	}
 
 	case PIPE: {
-		// pipes two commands
-		//
-		// Your code here
-		printf("Pipes are not yet implemented\n");
-
-		// free the memory allocated
-		// for the pipe tree structure
-		free_command(parsed_pipe);
+		
+		p = (struct pipecmd *)cmd;
+		int fds[2];
+		if (pipe(fds)<0){
+			printf_debug("Error creating pipe");
+			exit(-1);
+		}
+		int pid = fork();
+		if (pid<0){
+			printf_debug("Error forking");
+			exit(-1);
+		}
+		if (pid == 0){
+			close(fds[WRITE]);
+			//Redirect right pipe input
+			int r = dup2(fds[READ], 0);
+			if (r<0){
+				printf_debug("Error redirecting pipe flow");
+				exit(-1);
+			}
+			close(fds[READ]);
+			exec_cmd(p->rightcmd);
+			
+		}
+		if(pid > 0){
+			close(fds[READ]);
+			int pid_2 = fork();
+			if (pid_2<0){
+				printf_debug("Error forking");
+				exit(-1);
+			}
+			if(pid_2==0){
+				//Redirect left pipe output
+				if(dup2(fds[WRITE], 1)<0){
+					printf_debug("Error redirecting pipe flow");
+				}
+				close(fds[WRITE]);
+				exec_cmd(p->leftcmd);
+			}
+			close(fds[WRITE]);
+			waitpid(pid, NULL, 0);
+			waitpid(pid_2, NULL, 0);
+			
+		}
+		exit(0);
 
 		break;
 	}

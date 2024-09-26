@@ -13,13 +13,13 @@ sigchld_handler(int signum)
 
 	while ((pid = waitpid(0, &status, WNOHANG)) > 0) {
 		if (WIFEXITED(status)) {
-			printf("===> terminado: PID: %d, estado: %d\n",
-			       pid,
-			       WIFEXITED(status));
+			//printf("===> terminado: PID: %d, estado: %d\n",
+			       //pid,
+			       //WIFEXITED(status));
 		} else {
-			printf("===> terminado: PID: %d, estado: no termino "
-			       "normalmente",
-			       pid);
+			//printf("===> terminado: PID: %d, estado: no termino "
+			       //"normalmente",
+			       //pid);
 		}
 	}
 }

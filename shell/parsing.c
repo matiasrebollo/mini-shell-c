@@ -186,6 +186,10 @@ parse_cmd(char *buf_cmd)
 {
 	if (strlen(buf_cmd) == 0)
 		return NULL;
+	 
+	if (block_contains(buf_cmd, '|') > 0)
+		return parse_line(buf_cmd);
+	
 
 	int idx;
 
