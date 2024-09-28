@@ -24,7 +24,7 @@ Sin embargo, **todos** los procesos hijos generan la señal, no solo los que se 
 
 2) **Interrupción de procesos:** Los usuarios pueden interrumpir la ejecución de un proceso con señales como **SIGINT**, enviadas al presionar **Ctrl+C**, lo que permite detener comandos de forma inmediata.
 
-3) **Manejo de eventos asincrónicos:** Las señales permiten que los procesos respondan a eventos inesperados sin necesidad de tener que ser ellos quienes consulten repetidamente para verificar si un evento ha ocurrido, evitando así el consumo innecesario de recursos. Por ejemplo, cuando llegan nuevos datos, el sistema puede enviar una señal para que el proceso gestione el evento inmediatamente.
+3) **Manejo de eventos asincrónicos:** Las señales permiten que los procesos respondan a eventos inesperados sin necesidad de tener que ser ellos quienes consulten repetidamente para verificar si ha ocurrido, evitando así el consumo innecesario de recursos. Por ejemplo, cuando llegan nuevos datos, el sistema puede enviar una señal para que el proceso gestione el evento inmediatamente.
 
 4) **Seguridad y estabilidad**: Las señales pueden ayudar a que los procesos se comporten de manera segura y estable. Por ejemplo, el manejo de señales puede prevenir la ejecución de operaciones no deseadas si un proceso se encuentra en un estado inesperado. También permite al sistema gestionar que los procesos no se queden bloqueados o en estado de espera indefinida.
 
