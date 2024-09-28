@@ -2,6 +2,7 @@
 #include "types.h"
 #include "readline.h"
 #include "runcmd.h"
+#define ALT_STACK_SIZE (SIGSTKSZ + 4096)
 
 char prompt[PRMTLEN] = { 0 };
 
@@ -10,17 +11,24 @@ sigchld_handler(int signum)
 {
 	pid_t pid;
 	int status;
+	char buffer[100];
 
 	while ((pid = waitpid(0, &status, WNOHANG)) > 0) {
 		if (WIFEXITED(status)) {
-			printf_debug("===> terminado: PID: %d, estado: %d\n",
-			             pid,
-			             WIFEXITED(status));
+			int len = snprintf(
+			        buffer,
+			        sizeof(buffer),
+			        "===> terminado: PID: %d, estado: %d\n",
+			        pid,
+			        WIFEXITED(status));
+			write(STDOUT_FILENO, buffer, len);
 		} else {
-			printf_debug(
-			        "===> terminado: PID: %d, estado: no termino "
-			        "normalmente",
-			        pid);
+			int len = snprintf(buffer,
+			                   sizeof(buffer),
+			                   "===> terminado: PID: %d, estado: "
+			                   "no terminò normalmente\n",
+			                   pid);
+			write(STDOUT_FILENO, buffer, len);
 		}
 	}
 }
@@ -28,11 +36,24 @@ sigchld_handler(int signum)
 void
 setup_handler()
 {
+	char alt_stack[ALT_STACK_SIZE];
+
+	stack_t ss;
+	ss.ss_sp = alt_stack;
+	ss.ss_size = sizeof(alt_stack);
+	ss.ss_flags = 0;
+
+	if (sigaltstack(&ss, NULL) < 0) {
+		perror("Error al configurar el handler de SIGCHLD");
+		exit(EXIT_FAILURE);
+	}
+
 	struct sigaction s;
 	memset(&s, 0, sizeof(s));  // para limpiar el struct si hay basura.
 
 	s.sa_handler = sigchld_handler;
-	s.sa_flags = SA_RESTART;
+	s.sa_flags = SA_RESTART | SA_ONSTACK;
+	sigemptyset(&s.sa_mask);
 
 	if (sigaction(SIGCHLD, &s, NULL) < 0) {
 		perror("Error al configurar el handler de SIGCHLD");
