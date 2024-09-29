@@ -2,7 +2,10 @@
 
 ### Búsqueda en $PATH
 
----
+La familia exec(3) consiste en varias funciones de alto nivel que envuelven a la syscall execve(). La syscall execve(2) toma tres argumentos: el pathname del programa a ejecutar, un array de argumentos (argv[]) y un array de variables de entorno (envp[]). Las otras funciones de la familia exec(3) permiten especificar el programa usando solo el nombre del archivo buscandolo en el PATH. También ofrecen variaciones en la forma en que se pasan los argumentos, como una lista de argumentos (execl, execlp, execle), un array de punteros a strings terminados en NULL (execv, execvp), o permitiendo especificar un entorno personalizado para el nuevo programa (execle, execvpe).
+
+**¿Puede la llamada a exec(3) fallar? ¿Cómo se comporta la implementación de la shell en ese caso?**
+Si, la llamada puede fallar por errores en el path del archivo, por que el archivo ya esta siendo usado por otro poceso o por espacio insuficiente para los argumentos. Cuando exec(3) falla devuelve -1, la shell imprime un mensaje de error, cambia el status a failure, interrumpe el proceso hijo actual y se queda esperando un nuevo comando.
 
 ### Procesos en segundo plano
 
@@ -47,7 +50,9 @@ Sin embargo, **todos** los procesos hijos generan la señal, no solo los que se 
 
 ### Comandos built-in
 
----
+Los comandos built-in son especiales porque se ejecutan directamente dentro del proceso de la shell, lo que le da la habilidad de ejecutarse rapidamente y de poder acceder al estado de la shell. 
+El comando cd necesariamente tiene que ser built-in para poder acceder al directorio actual y actualizarlo, si se ejecutara dentro de un proceso hijo no podria actualizar el estado de la shell y no funcionaria correctamente.
+En cambio el comando pwd no tiene que hacer ningun cambio en el directorio actual, solo imprimirlo por pantalla, por lo que se podria implementarlo sin ser built-in por fuera del proceso de la shell. Igualmente la razon por la que se implementa ese comando como built-in es para facilitar el rapido acceso al estado de la shell 
 
 ### Historial
 
