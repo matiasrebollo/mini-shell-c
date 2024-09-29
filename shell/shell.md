@@ -42,11 +42,39 @@ Sin embargo, **todos** los procesos hijos generan la señal, no solo los que se 
 
 ### Variables de entorno temporarias
 
----
+**¿Por qué es necesario hacerlo luego de la llamada a fork(2)?**
+
+Es necesario hacerlo luego de la llamada a fork(2) ya que queremos que las variables de entorno solo se definan en el entorno del proceso hijo y no en el del padre. Si se hiciera antes de la llamada a fork(2), las variables se definirían en el proceso padre y el luego el proceso hijo las heredaría, pero esto no es deseable en nuestro caso dado que las variables existirían en el proceso de la shell y no serían temporarias.
+
+En algunos de los wrappers de la familia de funciones de exec(3) (las que finalizan con la letra e), se les puede pasar un tercer argumento (o una lista de argumentos dependiendo del caso), con nuevas variables de entorno para la ejecución de ese proceso. Supongamos, entonces, que en vez de utilizar setenv(3) por cada una de las variables, se guardan en un arreglo y se lo coloca en el tercer argumento de una de las funciones de exec(3). **¿El comportamiento resultante es el mismo que en el primer caso?**
+
+No, el comportamiento resultante no es exactamente el mismo. En el primer caso, utilizando setenv(3) por cada una de las variables, se setean las nuevas variables al entorno adicionalmente a las ya existentes. En cambio, en el segundo caso, se ejecuta el proceso con un entorno nuevo y se le agregan las variables pasadas por parámetro.
+
+**Descripción breve de una posible implementación para que el comportamiento sea el mismo**
+
+Para que el comportamiento sea el mismo, se podría hacer el exec(3) (de la familia con e) pasandole como tercer argumento un arreglo de punteros char con las variables de entorno preexistentes junto con las nuevas variables. Estos punteros deberán apuntar a una cadena de caracteres con el formtato "key=value", y el arreglo deberá terminar en NULL.
 
 ### Pseudo-variables
 
----
+La variable mágica ? devuelve el termination status del último comando ejecutado. Este valdrá 0 si el comando ejecutado fue exitoso, y diferente a 0 en caso de haya habido algún error.
+
+**Otras variables mágicas estándar**
+
+* $$ Devuelve el pid del proceso actual
+
+>$ echo $$
+>   10118
+
+* $_ Devuelve el último argumento del último comando que se ejecutó
+
+>$ echo Hola Mundo
+>$ echo $_
+>   Mundo
+
+* $0 Devuelve el nombre del script o comando que se está ejecutando
+
+>$ echo $0 
+>   bash
 
 ### Comandos built-in
 
