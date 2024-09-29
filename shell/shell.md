@@ -34,11 +34,106 @@ Sin embargo, **todos** los procesos hijos generan la señal, no solo los que se 
 
 ### Flujo estándar
 
----
+**Investigar el significado de 2>&1, explicar cómo funciona su forma general**
+
+Lo que hace 2>&1 es redirigir la salida de errores al mismo lugar que la salida estándar del programa. Está escrito de esta forma pues, 2> es como se redirecciona normalmente la salida de errores del programa, y si queremos que vaya al mismo lugar que la salida estándar, podemos pensar que alcanza con poner 2>1. Pero de esta forma, lo que se está haciendo es redirigir la salida de errores a un archivo llamado "1", entonces agregamos el & para indicar que nos referimos a el file descriptor de la salida estándar y no a un archivo llamado 1.
+
+**Mostrar qué sucede con la salida de cat out.txt en el ejemplo.**
+$ ls -C /home /noexiste >out.txt 2>&1
+
+$ cat out.txt
+---????---
+
+En este caso, la salida resultante es:
+
+ls: /noexiste: No such file or directory
+/home:
+
+La primera línea corresponde al error del directorio no existente, mientras que la segunda linea es la salida estándar hasta el error. Este comportamiento es igual en la shell implementada por nosotros y en una shell bash.
+
+Si invertimos el orden de las redirecciones, en la shell implementada por nosotros no cambia el comportamiento, mientras que en una shell bash, no se realiza la redirección de errores, pues cuando se realiza el primer comando, por pantalla se imprime la linea:
+
+ls: /noexiste: No such file or directory
+
+Mientras que luego del comando: 'cat out.txt' se imprime lo siguiente:
+
+/home:
+
+Esto implica que no se redirigió la salida de errores al archivo out.txt.
 
 ### Tuberías múltiples
 
----
+Cuando se ejecuta un pipe, cada proceso ejecutado reporta a la shell su exit code. Estos códigos se guardan en una variable de entorno que en el caso de bash se llama PIPESTATUS. Esta variable es una array cuyo índice comienza en 0 y están almacenados los exit code de los comandos ejecutados en el orden en el que fueron escritos en la ejecución del pipe. Por ejemplo:
+
+$ false | true
+
+Si queremos ver los exit code de los comandos, ingresamos el siguiente comando:
+
+$ echo "${PIPESTATUS[0]} ${PIPESTATUS[1]}"
+
+Lo que nos devuelve:
+
+1 0
+
+Los códigos reportados por cada comando no influyen en el proceso de ejecución de los otros comandos (influirán cuando un comando espera input de otro comando fallido, pero no fallará la ejecución del comando como tal).
+
+Debido a que bash ejecuta cada comando del pipeline en su propia "subshell", el pipe entero puede ser ejecutado aunque uno de los comandos falle o no exista. Bash no chequea que todos los comandos puedan ser ejecutados, eso se lo delega a las subshells. Es por eso que ejecuciones como:
+
+% noexiste | echo 2
+
+Va a devolver:
+
+-bash: noexiste: command not found
+2
+
+El comando no existente devuelve error pero echo se ejecutará igual. Otro ejemplo:
+
+% noexiste|wc
+-bash: noexiste : command not found
+       0       0       0
+
+El comando wc se ejecutará pero sin ningún input, por lo que cuenta 0 bytes.
+Por último, probamos el pipeline:
+
+% ls -l | noexiste | wc
+
+El cual devuelve:
+
+-bash: noexiste: command not found
+       0       0       0
+
+Lo que sucede es que el no se ve por pantalla la salida del primer comando, pues fue enviada a la entrada estándar de un proceso que ejecutó el comando que no existe, pero el comando ls -l fue ejecutado. Y nuevamente wc cuenta 0 bytes pues no recibe ningún input.
+
+Ahora vamos a comparar los mismos ejemplos con nuestra implementación.
+
+% noexiste | echo 2
+
+Va a devolver:
+
+Error ejecutando execvp 
+: No such file or directory
+2
+
+El funcionaimento es el mismo, devuelve el mensaje de error para el comando no existente y ejecuta el comando que si existe.
+
+Ahora probamos con el pipe:
+
+% noexiste|wc
+Error ejecutando execvp 
+: No such file or directory
+       0       0       0
+
+Lo mismo de vuelta, se muestra el mensaje de error del comando no existente y se ejecuta el comando wc sin ningún imput, resultando en 0 bytes contados.
+
+Por último:
+
+% ls -l | noexiste | wc
+
+Error ejecutando execvp 
+: No such file or directory
+       0       0       0
+
+Volvió a suceder lo que pasó anteriormente. Se ejecuta el primer comando y su salida se manda a un proceso que intenta ejecutar un comando inexistente, el cual devuelve un error mientras que wc se ejecuta sin ningún input.
 
 ### Variables de entorno temporarias
 

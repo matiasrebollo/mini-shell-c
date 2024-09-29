@@ -8,7 +8,7 @@ int
 run_cmd(char *cmd)
 {
 	pid_t p;
-	struct cmd *parsed = NULL;
+	struct cmd *parsed;
 
 	// if the "enter" key is pressed
 	// just print the prompt again
