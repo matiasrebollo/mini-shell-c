@@ -62,18 +62,18 @@ La variable mágica ? devuelve el termination status del último comando ejecuta
 
 * $$ Devuelve el pid del proceso actual
 
->$ echo $$
+>$ echo $$ \
 >   10118
 
 * $_ Devuelve el último argumento del último comando que se ejecutó
 
->$ echo Hola Mundo
->$ echo $_
+>$ echo Hola Mundo \
+>$ echo $_ \
 >   Mundo
 
 * $0 Devuelve el nombre del script o comando que se está ejecutando
 
->$ echo $0 
+>$ echo $0 \
 >   bash
 
 ### Comandos built-in
