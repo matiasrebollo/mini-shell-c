@@ -119,6 +119,7 @@ exec_cmd(struct cmd *cmd)
 		if (execvp(e->argv[0], e->argv) < 0) {
 			perror("Error ejecutando execvp \n");
 			status = EXIT_FAILURE;
+			free_command(cmd);
 			exit(-1);
 		}
 
@@ -193,46 +194,56 @@ exec_cmd(struct cmd *cmd)
 		p = (struct pipecmd *) cmd;
 		int fds[2];
 		if (pipe(fds) < 0) {
-			printf_debug("Error creating pipe");
+			perror("Error creating pipe");
 			exit(-1);
 		}
 		int pid = fork();
 		if (pid < 0) {
-			printf_debug("Error forking");
+			perror("Error forking");
 			exit(-1);
 		}
 		if (pid == 0) {
+			if (p->rightcmd->type != BACK)
+				setpgid(0, 0);
 			close(fds[WRITE]);
 			// Redirect right pipe input
 			int r = dup2(fds[READ], 0);
 			if (r < 0) {
-				printf_debug("Error redirecting pipe flow");
+				perror("Error redirecting pipe flow");
+				free_command(p->rightcmd);
 				exit(-1);
 			}
 			close(fds[READ]);
+
 			exec_cmd(p->rightcmd);
 		}
 		if (pid > 0) {
 			close(fds[READ]);
 			int pid_2 = fork();
 			if (pid_2 < 0) {
-				printf_debug("Error forking");
+				perror("Error forking");
+				free_command(p->leftcmd);
 				exit(-1);
 			}
 			if (pid_2 == 0) {
+				if (p->leftcmd->type != BACK)
+					setpgid(0, 0);
 				// Redirect left pipe output
 				if (dup2(fds[WRITE], 1) < 0) {
-					printf_debug(
-					        "Error redirecting pipe flow");
+					perror("Error redirecting pipe flow");
+					free_command(p->leftcmd);
+					exit(-1);
 				}
 				close(fds[WRITE]);
 				exec_cmd(p->leftcmd);
 			}
+
 			close(fds[WRITE]);
 			waitpid(pid, NULL, 0);
 			waitpid(pid_2, NULL, 0);
 		}
-		exit(0);
+
+		return;
 
 		break;
 	}

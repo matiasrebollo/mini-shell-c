@@ -8,7 +8,7 @@ int
 run_cmd(char *cmd)
 {
 	pid_t p;
-	struct cmd *parsed;
+	struct cmd *parsed = NULL;
 
 	// if the "enter" key is pressed
 	// just print the prompt again
@@ -49,8 +49,9 @@ run_cmd(char *cmd)
 
 
 		exec_cmd(parsed);
+		free_command(parsed_pipe);
+		exit(0);
 	}
-
 	// stores the pid of the process
 	parsed->pid = p;
 
@@ -64,7 +65,9 @@ run_cmd(char *cmd)
 		print_status_info(parsed);
 	}
 
+
 	free_command(parsed);
+
 
 	return 0;
 }
