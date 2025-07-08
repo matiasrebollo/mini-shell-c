@@ -1,6 +1,16 @@
 # Mini Shell en C
 
-Este proyecto es una implementación de una **shell mínima** desarrollada en **C11** bajo el estándar **POSIX.1-2008**, como parte del trabajo práctico de la materia **Sistemas Operativos** (FIUBA, 2C2024 – cátedra Méndez-Fresia).
+Este proyecto es una implementación de una **shell mínima** desarrollada en **C11** bajo el estándar **POSIX.1-2008**.
+Trabajo práctico de la materia **Sistemas Operativos** (FIUBA) – Grupo 25 – Cátedra Méndez-Fresia.
+
+Integrantes:
+
+- Agustín García Dresch
+- Matías Gabriel Rebollo
+- Marcos García Neira
+- Sabrina García Lucentini
+
+---
 
 La shell soporta:
 
